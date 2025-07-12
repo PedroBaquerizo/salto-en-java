@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Salto del Caballo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #f4f4f4;
+    }
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+    td {
+      width: 60px;
+      height: 60px;
+      text-align: center;
+      vertical-align: middle;
+      font-weight: bold;
+      font-size: 18px;
+      border: 1px solid black;
+    }
+    .white {
+      background-color: #ffffff;
+    }
+    .black {
+      background-color: #999999;
+    }
+    .highlight {
+      background-color: #4e4caf !important;
+      color: white;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Problema del Salto del Caballo</h1>
+<table id="chessboard"></table>
+<button onclick="startKnightTour()">Iniciar Recorrido</button>
+
+<script>
+  const N = 8;
+  let board = [];
+  const movX = [2, 1, -1, -2, -2, -1, 1, 2];
+  const movY = [1, 2, 2, 1, -1, -2, -2, -1];
+
+  
+  function createBoard() {
+    const table = document.getElementById("chessboard");
+    table.innerHTML = "";
+    board = [];
+
+    for (let i = 0; i < N; i++) {
+      let row = [];
+      const tr = document.createElement("tr");
+      for (let j = 0; j < N; j++) {
+        const td = document.createElement("td");
+        td.className = (i + j) % 2 === 0 ? "white" : "black";
+        tr.appendChild(td);
+        row.push({ cell: td, move: -1 });
+      }
+      table.appendChild(tr);
+      board.push(row);
+    }
+  }
+
+  
+  function isValid(x, y) {
+    return x >= 0 && y >= 0 && x < N && y < N && board[x][y].move === -1;
+  }
+
+
+  function solve(x, y, movei) {
+    if (movei === N * N) return true;
+
+    for (let k = 0; k < 8; k++) {
+      const nextX = x + movX[k];
+      const nextY = y + movY[k];
+      if (isValid(nextX, nextY)) {
+        board[nextX][nextY].move = movei;
+        if (solve(nextX, nextY, movei + 1)) return true;
+        board[nextX][nextY].move = -1;
+      }
+    }
+    return false;
+  }
+
+  
+  async function showSolution() {
+    for (let i = 0; i < N; i++)
+      for (let j = 0; j < N; j++)
+        board[i][j].cell.textContent = "";
+
+    for (let m = 0; m < N * N; m++) {
+      for (let i = 0; i < N; i++) {
+        for (let j = 0; j < N; j++) {
+          if (board[i][j].move === m) {
+            board[i][j].cell.classList.add("highlight");
+            board[i][j].cell.textContent = m;
+            await new Promise(r => setTimeout(r, 150));
+          }
+        }
+      }
+    }
+  }
+
+  function startKnightTour() {
+    createBoard();
+    board[0][0].move = 0;
+    if (solve(0, 0, 1)) {
+      showSolution();
+    } else {
+      alert("No hay solución.");
+    }
+  }
+
+ 
+  createBoard();
+</script>
+
+</body>
+</html>
